@@ -16,7 +16,7 @@ function Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N)
   range_y = linspace(-3, 3, res);
   [x, y]  = meshgrid(range_x, range_y);
 
-  %%%%%%%%%%%%%%%%%%%%%% STREAMLINE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %%%%%%%%%%%%%%%%%%%%%% STREAMLINE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % vortex params for a streamline
   gamma = @(x1) 2*alpha*V_inf.*sqrt((1-(x1./c)) ./ (x1./c));
   Gamma = @(x1) gamma(x1).*dx;
@@ -39,7 +39,6 @@ function Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N)
 
   figure;
   hold on;
-
   % plot the streamlines from the stream function
   nlevels = 50;
   levmin  = min(min(stream));
@@ -55,7 +54,7 @@ function Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N)
   xlabel('Distance from leading edge (meters)');
   ylabel('Vertical distance from chord (meters)');
 
-  %%%%%%%%%%%%%%%%%%%%%% POTENTIAL FLOW %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %%%%%%%%%%%%%%%%%%%%%% POTENTIAL FLOW %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   phi        = V_inf.*(cos(alpha).*x + sin(alpha).*y); % freestream potental
   theta      = @(x, y, x1, y1) atan((y1-y)./(x1-x));
   % atan2 does a quadrant check
@@ -76,7 +75,7 @@ function Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N)
   xlabel('Distance from leading edge (meters)');
   ylabel('Vertical distance from chord (meters)');
 
-  %%%%%%%%%%%%%%%%%%%%%% PRESSURE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %%%%%%%%%%%%%%%%%%%%%% PRESSURE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   [vy, vx] = gradient(stream);
   vy = -vy;
 
@@ -84,6 +83,7 @@ function Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N)
   P = p_inf + 0.5*rho_inf.*(V_inf.^2 - (vx.^2 + vy.^2));
 
   figure; hold on;
+  nlevels = 20;
   levmin  = min(min(P));
   levmax  = max(max(P));
   levels  = linspace(levmin, levmax, nlevels)';
