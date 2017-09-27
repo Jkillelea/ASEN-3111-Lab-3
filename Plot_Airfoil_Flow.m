@@ -22,7 +22,7 @@ function Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N)
   Gamma = @(x1) gamma(x1).*dx;
 
   % distance between two points
-  radius = inline('sqrt((x-x1).^2+(y-y1).^2)','x','y','x1','y1');
+  radius = @(x, y, x1, y1) sqrt((x-x1).^2+(y-y1).^2);
 
   % streamline definition for a vortex at (x, y)
   vortex_stream = @(xpos, ypos) Gamma(xpos)./(2*pi)*log(radius(x, y, xpos, ypos));
@@ -56,9 +56,7 @@ function Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N)
 
   %%%%%%%%%%%%%%%%%%%%%% POTENTIAL FLOW %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   phi        = V_inf.*(cos(alpha).*x + sin(alpha).*y); % freestream potental
-  theta      = @(x, y, x1, y1) atan((y1-y)./(x1-x));
-  % atan2 does a quadrant check
-  vortex_phi = @(vx, vy, x_i, y_i) -Gamma(vx)./(2*pi).*atan2((vy - y_i), (vx - x_i));
+  vortex_phi = @(vx, vy, x_i, y_i) -Gamma(vx)./(2*pi).*atan2((vy - y_i), (vx - x_i)); % atan2 does a quadrant check
 
   for i = 1:N-1
     x_i = i*dx;
