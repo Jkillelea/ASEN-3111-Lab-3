@@ -31,6 +31,7 @@ function Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N)
   stream = V_inf*cos(alpha).*y - V_inf*sin(alpha).*x;
 
   % superimpose all the vortcies
+  % We skip positions x = 0 and x = c because they create singularities
   for i = 1:(N-1)
     x_i = i*dx;
     y_i = 0;
