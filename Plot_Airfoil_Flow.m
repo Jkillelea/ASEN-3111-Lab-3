@@ -1,10 +1,12 @@
-function Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N)
-  % c       -> chord length, meters
-  % alpha   -> angle of attack, degrees (converted to radians)
-  % V_inf   -> freestream, m/s
-  % p_inf   -> freestream pressure, Pa (I guess)
-  % rho_inf -> freestream density, kg/m^3
-  % N       -> number of vortcies
+function [x, y, P] = Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N, render_plots, save_plots)
+  % c            -> chord length, meters
+  % alpha        -> angle of attack, degrees (converted to radians)
+  % V_inf        -> freestream, m/s
+  % p_inf        -> freestream pressure, Pa (I guess)
+  % rho_inf      -> freestream density, kg/m^3
+  % N            -> number of vortcies
+  % render_plots -> optional boolean (default true)
+  % save_plots   -> optional boolean (default false, does nothing if render_plots is false)
 
   % NOTE: alpha MUST be in radians for dimensional consistency
   alpha = deg2rad(alpha);
@@ -15,6 +17,16 @@ function Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N)
   range_x = linspace(-3, 3, res);
   range_y = linspace(-3, 3, res);
   [x, y]  = meshgrid(range_x, range_y);
+
+  % if we haven't been told whether or not to show plots
+  if ~exist('render_plots', 'var')
+    render_plots = true;
+  end
+
+  % if we haven't been told whether or not to save plots
+  if ~exist('save_plots', 'var')
+    save_plots = false;
+  end
 
   %%%%%%%%%%%%%%%%%%%%%% STREAMLINE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % vortex params for a streamline
@@ -38,22 +50,27 @@ function Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N)
     stream = stream + vortex_stream(x_i, y_i);
   end
 
-  figure;
-  hold on;
-  % plot the streamlines from the stream function
-  nlevels = 50;
-  levmin  = min(min(stream));
-  levmax  = max(max(stream));
-  levels  = linspace(levmin, levmax, nlevels)';
-  contour(x, y, stream, levels);
+  if render_plots
+    f = figure;
+    hold on;
+    % plot the streamlines from the stream function
+    nlevels = 50;
+    levmin  = min(min(stream));
+    levmax  = max(max(stream));
+    levels  = linspace(levmin, levmax, nlevels)';
+    contour(x, y, stream, levels);
 
-  % plot the thin airfoil
-  airfoil_x = linspace(0, c, 50);
-  airfoil_y = linspace(0, 0, 50);
-  plot(airfoil_x, airfoil_y, 'k');
-  title(sprintf('Streamlines around thin airfoil, AoA = %d degrees', rad2deg(alpha)));
-  xlabel('Distance from leading edge (meters)');
-  ylabel('Vertical distance from chord (meters)');
+    % plot the thin airfoil
+    airfoil_x = linspace(0, c, 50);
+    airfoil_y = linspace(0, 0, 50);
+    plot(airfoil_x, airfoil_y, 'k');
+    title(sprintf('Streamlines around thin airfoil, AoA = %.0f degrees, c = %d m', rad2deg(alpha), c));
+    xlabel('Distance from leading edge (meters)');
+    ylabel('Vertical distance from chord (meters)');
+    if save_plots
+      print(f, sprintf('streamlines_c%d_alpha%.0f', c, rad2deg(alpha)), '-dpng');
+    end
+  end
 
   %%%%%%%%%%%%%%%%%%%%%% POTENTIAL FLOW %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   phi        = V_inf.*(cos(alpha).*x + sin(alpha).*y); % freestream potental
@@ -65,14 +82,19 @@ function Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N)
     phi = phi + vortex_phi(x_i, y_i, x, y);
   end
 
-  figure;
-  hold on;
-  % plot potental function
-  contour(x, y, phi, levels);
-  plot(airfoil_x, airfoil_y, 'k');
-  title('Potential around thin airfoil');
-  xlabel('Distance from leading edge (meters)');
-  ylabel('Vertical distance from chord (meters)');
+  if render_plots
+    f = figure;
+    hold on;
+    % plot potental function
+    contour(x, y, phi, levels);
+    plot(airfoil_x, airfoil_y, 'k');
+    title('Potential around thin airfoil');
+    xlabel('Distance from leading edge (meters)');
+    ylabel('Vertical distance from chord (meters)');
+    if save_plots
+      print(f, sprintf('potential_c%d_alpha%.0f', c, rad2deg(alpha)), '-dpng');
+    end
+  end
 
   %%%%%%%%%%%%%%%%%%%%%% PRESSURE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   [vy, vx] = gradient(stream);
@@ -81,14 +103,22 @@ function Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N)
   % Bernoulli's Law
   P = p_inf + 0.5*rho_inf.*(V_inf.^2 - (vx.^2 + vy.^2));
 
-  figure; hold on;
-  nlevels = 20;
-  levmin  = min(min(P));
-  levmax  = max(max(P));
-  levels  = linspace(levmin, levmax, nlevels)';
-  contour(x, y, P, levels);
-  plot(airfoil_x, airfoil_y, 'k');
-  title('Pressure around thin airfoil');
-  xlabel('Distance from leading edge (meters)');
-  ylabel('Vertical distance from chord (meters)');
+  if render_plots
+    f = figure;
+    hold on;
+
+    nlevels = 20;
+    levmin  = min(min(P));
+    levmax  = max(max(P));
+    levels  = linspace(levmin, levmax, nlevels)';
+
+    contourf(x, y, P, levels);
+    plot(airfoil_x, airfoil_y, 'k');
+    title('Pressure around thin airfoil');
+    xlabel('Distance from leading edge (meters)');
+    ylabel('Vertical distance from chord (meters)');
+    if save_plots
+      print(f, sprintf('pressure_c%d_alpha%.0f', c, rad2deg(alpha)), '-dpng');
+    end
+  end
 end
