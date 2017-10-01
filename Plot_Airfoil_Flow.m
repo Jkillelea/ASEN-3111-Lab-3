@@ -28,6 +28,10 @@ function [x, y, P] = Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N, rende
     save_plots = false;
   end
 
+  if(save_plots && ~render_plots)
+    warning('Asked to save plots, but plots are note being rendered. Plots will not be saved.');
+  end
+
   %%%%%%%%%%%%%%%%%%%%%% STREAMLINE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % vortex params for a streamline
   gamma = @(x1) 2*alpha*V_inf.*sqrt((1-(x1./c)) ./ (x1./c));
@@ -64,11 +68,12 @@ function [x, y, P] = Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N, rende
     airfoil_x = linspace(0, c, 50);
     airfoil_y = linspace(0, 0, 50);
     plot(airfoil_x, airfoil_y, 'k');
-    title(sprintf('Streamlines around thin airfoil, AoA = %.0f degrees, c = %d m', rad2deg(alpha), c));
+    title(sprintf('Streamlines, AoA = %.0f degrees, c = %d m, V = %.0f m/s', rad2deg(alpha), c, V_inf));
     xlabel('Distance from leading edge (meters)');
     ylabel('Vertical distance from chord (meters)');
     if save_plots
-      print(f, sprintf('streamlines_c%d_alpha%.0f', c, rad2deg(alpha)), '-dpng');
+      filename = sprintf('streamlines_c%d_alpha%.0f_v%d', c, rad2deg(alpha), V_inf);
+      print(f, filename, '-dpng');
     end
   end
 
@@ -88,11 +93,11 @@ function [x, y, P] = Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N, rende
     % plot potental function
     contour(x, y, phi, levels);
     plot(airfoil_x, airfoil_y, 'k');
-    title('Potential around thin airfoil');
+    title(sprintf('Potential, AoA = %.0f degrees, c = %d m, V = %.0f m/s', rad2deg(alpha), c, V_inf));
     xlabel('Distance from leading edge (meters)');
     ylabel('Vertical distance from chord (meters)');
     if save_plots
-      print(f, sprintf('potential_c%d_alpha%.0f', c, rad2deg(alpha)), '-dpng');
+      print(f, sprintf('potential_c%d_alpha%.0f_v%d', c, rad2deg(alpha), V_inf), '-dpng');
     end
   end
 
@@ -114,11 +119,11 @@ function [x, y, P] = Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, N, rende
 
     contourf(x, y, P, levels);
     plot(airfoil_x, airfoil_y, 'k');
-    title('Pressure around thin airfoil');
+    title(sprintf('Pressure, AoA = %.0f degrees, c = %d m, V = %.0f m/s', rad2deg(alpha), c, V_inf));
     xlabel('Distance from leading edge (meters)');
     ylabel('Vertical distance from chord (meters)');
     if save_plots
-      print(f, sprintf('pressure_c%d_alpha%.0f', c, rad2deg(alpha)), '-dpng');
+      print(f, sprintf('pressure_c%d_alpha%.0f_v%d', c, rad2deg(alpha), V_inf), '-dpng');
     end
   end
 end
