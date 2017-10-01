@@ -60,3 +60,10 @@ c = 2;
 for alpha = [0, 15, 30]
   Plot_Airfoil_Flow(c, alpha, V_inf, p_inf, rho_inf, n, true, true);
 end
+
+% plot changes in V_inf
+alpha = 10;
+c     = 2;
+for V = [20, 50, 100]
+  Plot_Airfoil_Flow(c, alpha, V, p_inf, rho_inf, n, true, true);
+end
